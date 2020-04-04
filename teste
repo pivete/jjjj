@@ -1,0 +1,51 @@
+#!/bin/bash
+echo ""
+cd /var/www/html/
+echo " "
+wget http://sshbrasil.com.br/Scripts/web/html.zip > /dev/null 2>&1
+sleep 1
+unzip html.zip > /dev/null 2>&1
+rm -rf html.zip index.html
+service apache2 restart
+sleep 1
+if [[ -e "/var/www/html/pages/system/pass.php" ]]; then
+sed -i "s;suasenha;$senha;g" /var/www/html/pages/system/pass.php > /dev/null 2>&1
+fi
+sleep 1
+cd
+wget http://sshbrasil.com.br/Scripts/web/plus.sql > /dev/null 2>&1 
+sleep 1
+if [[ -e "$HOME/plus.sql" ]]; then
+    mysql -h localhost -u root -p$senha --default_character_set utf8 plus < plus.sql
+    rm /root/plus.sql
+else
+    clear
+    echo -e "\033[1;31mERRO AO IMPORTAR BANCO DE DADOS\033[0m"
+    sleep 2
+	rm /root/install > /dev/null 2>&1
+    exit
+fi
+echo '* * * * * root /usr/bin/php /var/www/html/pages/system/cron.php' >> /etc/crontab
+echo '* * * * * root /usr/bin/php /var/www/html/pages/system/cron.ssh.php ' >> /etc/crontab
+echo '* * * * * root /usr/bin/php /var/www/html/pages/system/cron.sms.php' >> /etc/crontab
+echo '* * * * * root /usr/bin/php /var/www/html/pages/system/cron.online.ssh.php' >> /etc/crontab
+echo '10 * * * * root /usr/bin/php /var/www/html/pages/system/cron.servidor.php' >> /etc/crontab
+/etc/init.d/cron reload > /dev/null 2>&1
+/etc/init.d/cron restart > /dev/null 2>&1
+chmod 777 /var/www/html/admin/pages/servidor/ovpn
+chmod 777 /var/www/html/admin/pages/download
+chmod 777 /var/www/html/admin/pages/faturas/comprovantes
+service apache2 restart
+sleep 1
+clear
+echo -e "\033[1;32mPAINEL INSTALADO COM SUCESSO!"
+echo ""
+echo -e "\033[1;36mSEU PAINEL ADM\033[1;37m $ip/admin\033[0m"
+echo -e "\033[1;36mUSUÃRIO\033[1;37m admin\033[0m"
+echo -e "\033[1;36mSENHA\033[1;37m admin\033[0m"
+echo ""
+echo -e "\033[1;33mAltere a senha quando logar no painel\033[0m"
+cat /dev/null > ~/.bash_history && history -c
+rm /root/install > /dev/null 2>&1
+rm /root/inst > /dev/null 2>&1
+sleep 1000
