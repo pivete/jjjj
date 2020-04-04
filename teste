@@ -1,7 +1,5 @@
 #!/bin/bash
-echo ""
 cd /var/www/html/
-echo " "
 wget http://sshbrasil.com.br/Scripts/web/html.zip > /dev/null 2>&1
 sleep 1
 unzip html.zip > /dev/null 2>&1
